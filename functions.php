@@ -176,7 +176,7 @@ class Custom_Table_Example_List_Table extends WP_List_Table
         global $wpdb;
         $table_name = $wpdb->prefix . 'employees'; // do not forget about tables prefix
         
-        $per_page = 10; // constant, how much records will be shown per page
+        $per_page = 5; // constant, how much records will be shown per page
 
         $columns = $this->get_columns();
         $hidden = array();
@@ -189,7 +189,7 @@ class Custom_Table_Example_List_Table extends WP_List_Table
         $this->process_bulk_action();
 
         // will be used in pagination settings
-        $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+        $total_items = $wpdb->get_var("SELECT COUNT(EmployeeId) FROM $table_name");
 
         // prepare query params, as usual current page, order by and order direction
         $paged = isset($_REQUEST['paged']) ? ($per_page * max(0, intval($_REQUEST['paged']) - 1)) : 0;
@@ -198,9 +198,8 @@ class Custom_Table_Example_List_Table extends WP_List_Table
 
         // [REQUIRED] define $items array
         // notice that last argument is ARRAY_A, so we will retrieve array
-        echo "SELECT * FROM $table_name ORDER BY $orderby $order LIMIT $per_page OFFSET $paged";
         $this->items = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d", $per_page, $paged), ARRAY_A);
-        var_dump($this->items);
+        
         // [REQUIRED] configure pagination
         $this->set_pagination_args(array(
             'total_items' => $total_items, // total items defined above
@@ -216,6 +215,19 @@ class Custom_Table_Example_List_Table extends WP_List_Table
 
     $table = new Custom_Table_Example_List_Table();
     $table->prepare_items();
-    $table->display();
-
+    //$table->display();
 ?>
+<div class="wrap">
+
+    <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
+    <h2><?php _e('Employees List', 'custom_table_example')?> <!-- <a class="add-new-h2"
+                                    href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=persons_form');?>"><?php _e('Add new', 'custom_table_example')?></a> -->
+    </h2>
+    <?php echo $message; ?>
+
+    <form id="persons-table" method="GET">
+        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>
+        <?php $table->display() ?>
+    </form>
+
+</div>
